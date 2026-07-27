@@ -548,17 +548,26 @@ def main() -> None:
                 else:
                     # 之前看到过"在跑" → 检查 log 是否完成
                     info = check_logs(svr)
+                    # 当 check_logs 无结果但进程已全部退出时，生成兜底信息
+                    if info is None and cpu["proc_count"] == 0:
+                        info = {
+                            "total": "?",
+                            "normal": "?",
+                            "error": "?",
+                            "time": "进程已全部停止（log 中未找到完成标记）",
+                        }
+
                     if info:
                         server_state[name] = {"done": True, "info": info}
                         total = info.get("total", "?")
                         normal = info.get("normal", "?")
                         error = info.get("error", "?")
-                        mark = "✅" if error == 0 else "⚠️"
+                        mark = "✅" if (error == 0 or error == "?") else "⚠️"
                         lines.append(
                             f"  [{name}] [{bar}] {mark} 完成 "
                             f"({normal}/{total} 正常)"
                         )
-                        # ── 发送邮件通知（替代原 popup + beep） ──
+                        # ── 发送邮件通知 ──
                         success, msg = send_alert_email(
                             smtp_config, alert_config, name, info,
                         )
@@ -567,10 +576,6 @@ def main() -> None:
                         else:
                             print(f"  ⚠️ 邮件发送失败 [{name}]: {msg}")
                         notified_servers.add(name)
-                    elif cpu["proc_count"] == 0:
-                        lines.append(
-                            f"  [{name}] [{bar}] CPU 0% | 🔍 确认中（无进程）"
-                        )
                     else:
                         lines.append(
                             f"  [{name}] [{bar}] CPU {cpu['cpu_pct']:.0f}% | 🔍 确认中..."
