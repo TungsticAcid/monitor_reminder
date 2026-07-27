@@ -1,0 +1,39 @@
+{
+  "_说明": "计算任务监控 + 邮件通知 — 配置文件。所有包含 your_ 前缀的字段请替换为实际值。",
+
+  "smtp": {
+    "server": "smtp.qq.com",
+    "port": 587,
+    "use_tls": true,
+    "username": "your_email@qq.com",
+    "password": "your_smtp_auth_code",
+    "sender_name": "计算监控助手"
+  },
+
+  "alert": {
+    "recipients": ["your_email@qq.com"],
+    "cc": [],
+    "subject_template": "计算完成 - 服务器 {name}",
+    "body_template": "服务器 {name} 计算完成！\n\n总任务数: {total}\n正常终止: {normal}\n报错终止: {error}\n完成时间: {time}\n\n---\n此邮件由计算监控助手自动发送。\n发送时间: {datetime}",
+    "body_type": "plain"
+  },
+
+  "monitor": {
+    "check_interval": 200,
+    "cpu_threshold": 200.0,
+    "check_timeout": 60,
+    "monitor_list": ["server_1"],
+    "servers": {
+      "server_1": {
+        "host": "your_server_ip",
+        "port": 22,
+        "user": "your_username",
+        "pass": "your_password",
+        "dir": "/home/your_username/workdir/",
+        "procs": ["your_process_name"],
+        "thresh": null,
+        "nproc": null
+      }
+    }
+  }
+}
